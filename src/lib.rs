@@ -176,13 +176,14 @@ impl<K, V> LRUCache<K, V> {
         V: Debug,
     {
         if new_max_len >= self.max_len {
-            self.kv_storage.reserve(new_max_len.get() as usize - self.max_len());
+            self.kv_storage
+                .reserve(new_max_len.get() as usize - self.max_len());
             self.max_len = new_max_len;
             return Vec::new();
         }
 
         if self.kv_storage.is_empty() {
-            return Vec::new()
+            return Vec::new();
         }
 
         let mut borrowed_queue = self.recency_queue.borrow_mut();
@@ -191,7 +192,9 @@ impl<K, V> LRUCache<K, V> {
         for _ in new_max_len.get() as usize..self.len() {
             let removed = borrowed_queue.pop_front();
             assert!(removed.is_some());
-            let removed = RefNode { ref_count: removed.unwrap() };
+            let removed = RefNode {
+                ref_count: removed.unwrap(),
+            };
 
             let was_removed = self.kv_storage.remove(removed.key());
             assert!(was_removed);
@@ -207,9 +210,10 @@ impl<K, V> LRUCache<K, V> {
     /// Does not affect order of elements removal.
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)>
     where
-        K: Hash + Eq
+        K: Hash + Eq,
     {
-        self.kv_storage.iter()
+        self.kv_storage
+            .iter()
             .map(|elem| (elem.key(), elem.value()))
     }
 
